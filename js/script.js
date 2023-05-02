@@ -1,21 +1,35 @@
 let tareas = [];
 
-const form = document.querySelector("form");
-form.addEventListener("submit", (event) => {
-  event.preventDefault();
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.querySelector("form");
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
 
-  const inputText = document.querySelector("#text");
+    const inputId = document.querySelector("#id");
+    const inputText = document.querySelector("#text");
 
-  tareas.push({
-    id: Date.now(),
-    text: inputText.value,
-    complete: false,
+    if (inputId.value) {
+      tareas.forEach((tarea) => {
+        if (tarea.id == inputId.value) {
+          tarea.text = inputText.value;
+        }
+      });
+    } else {
+      tareas.push({
+        id: Date.now(),
+        text: inputText.value,
+        complete: false,
+      });
+    }
+
+    inputId.value = "";
+    //   inputText.value = "";
+    event.target.reset();
+
+    localStorage.setItem("tareas", JSON.stringify(tareas));
+
+    renderTareas();
   });
-
-  //   inputText.value = "";
-  event.target.reset();
-
-  localStorage.setItem("tareas", JSON.stringify(tareas));
 
   renderTareas();
 });
@@ -35,7 +49,9 @@ const renderTareas = () => {
             <button type="button" data-id="${
               tarea.id
             }" class="btn-complete">Completar</button>
-            <button type="button">Editar</button>
+            <button type="button" onclick="editarTarea(${
+              tarea.id
+            })">Editar</button>
             <button type="button" onclick="borrarTarea(${
               tarea.id
             })">Borrar</button>
@@ -63,6 +79,17 @@ const completarTarea = (id) => {
   renderTareas();
 };
 
+const editarTarea = (id) => {
+  const tarea = tareas.find((tarea) => tarea.id == id);
+
+  if (tarea) {
+    const inputId = document.querySelector("#id");
+    inputId.value = tarea.id;
+    const inputText = document.querySelector("#text");
+    inputText.value = tarea.text;
+  }
+};
+
 const borrarTarea = (id) => {
   if (confirm("¿Esta seguro?")) {
     const filtradas = tareas.filter((tarea) => tarea.id != id);
@@ -70,7 +97,3 @@ const borrarTarea = (id) => {
     renderTareas();
   }
 };
-
-document.addEventListener("DOMContentLoaded", () => {
-  renderTareas();
-});
